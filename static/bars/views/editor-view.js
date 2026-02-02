@@ -139,12 +139,12 @@ export class EditorView {
     wrap.appendChild(createElement("div", { class: "tag", text: "HSL" }));
     wrap.appendChild(this.renderBarAdjustControls(sectionKey, barName, draftValue, draftHsl));
 
-    // Color rows as exclusive accordions
+    // Color ramps (inline)
     wrap.appendChild(createElement("div", { class: "tag", text: "Colors" }));
     wrap.appendChild(
       style === "ps1"
-        ? this.renderPs1Accordions(sectionKey, barName, draftValue, section)
-        : this.renderPcAccordion(sectionKey, barName, draftValue, section),
+        ? this.renderPs1Colors(sectionKey, barName, draftValue, section)
+        : this.renderPcColors(sectionKey, barName, draftValue, section),
     );
 
     // Initial draw: defer until layout so canvas has a real size.
@@ -480,36 +480,19 @@ export class EditorView {
     return wrap;
   }
 
-  renderPcAccordion(sectionKey, barName, value, section) {
-    const details = document.createElement("details");
-    details.open = true;
-    details.appendChild(createElement("summary", { text: "Ramp" }));
-    details.appendChild(this.renderSwatchRow(sectionKey, barName, value, null, section));
-    return details;
+  renderPcColors(sectionKey, barName, value, section) {
+    const wrap = document.createElement("div");
+    wrap.appendChild(createElement("div", { class: "tag", text: "Ramp" }));
+    wrap.appendChild(this.renderSwatchRow(sectionKey, barName, value, null, section));
+    return wrap;
   }
 
-  renderPs1Accordions(sectionKey, barName, value, section) {
+  renderPs1Colors(sectionKey, barName, value, section) {
     const wrap = document.createElement("div");
-    const left = document.createElement("details");
-    const right = document.createElement("details");
-    left.open = true;
-    right.open = false;
-    left.appendChild(createElement("summary", { text: "Left ramp" }));
-    right.appendChild(createElement("summary", { text: "Right ramp" }));
-    left.addEventListener("toggle", () => {
-      if (left.open) {
-        right.open = false;
-      }
-    });
-    right.addEventListener("toggle", () => {
-      if (right.open) {
-        left.open = false;
-      }
-    });
-    left.appendChild(this.renderSwatchRow(sectionKey, barName, value[0], 0, section));
-    right.appendChild(this.renderSwatchRow(sectionKey, barName, value[1], 1, section));
-    wrap.appendChild(left);
-    wrap.appendChild(right);
+    wrap.appendChild(createElement("div", { class: "tag", text: "Left ramp" }));
+    wrap.appendChild(this.renderSwatchRow(sectionKey, barName, value[0], 0, section));
+    wrap.appendChild(createElement("div", { class: "tag", text: "Right ramp" }));
+    wrap.appendChild(this.renderSwatchRow(sectionKey, barName, value[1], 1, section));
     return wrap;
   }
 

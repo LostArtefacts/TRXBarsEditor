@@ -304,21 +304,11 @@ main {
   height: 72px;
 }
 
-details > summary {
-  cursor: pointer;
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  user-select: none;
-  padding: 6px 0;
-}
-
 .swatch-row {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 10px;
+  margin: 10px 0;
 }
 
 .color-swatch {
@@ -560,6 +550,7 @@ details > summary {
 .tag {
   font-family: var(--mono);
   font-size: 11px;
+  margin: 0.2rem 0;
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.08em;
