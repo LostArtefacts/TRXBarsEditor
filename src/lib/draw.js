@@ -8,13 +8,14 @@ export function drawBarPreview(canvas, theme, percent, smooth, barColorSteps) {
   canvas.height = cssHeight * dpr;
 
   const ctx = canvas.getContext("2d");
+  if (!ctx) {
+    return;
+  }
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
   const w = cssWidth;
   const h = cssHeight;
 
-  // Preview path should mirror `src/trx/game/ui/elements/bar.c`:
-  // border = padding = h / (UI_BAR_COLOR_STEPS + 4)
   const border = Math.max(1, Math.floor(h / (barColorSteps + 4)));
   const padding = border;
 
@@ -32,7 +33,6 @@ export function drawBarPreview(canvas, theme, percent, smooth, barColorSteps) {
     );
   } else {
     drawSolidRect(ctx, { x: 0, y: 0, w, h }, theme.border_light || "#ffffff");
-    // PC border draws the dark quad inset by border, subtracting border once.
     drawSolidRect(
       ctx,
       { x: border, y: border, w: w - border, h: h - border },
@@ -154,6 +154,9 @@ function drawBilinearGradientRect(ctx, rect, tl, tr, br, bl) {
   off.width = sampleW;
   off.height = sampleH;
   const octx = off.getContext("2d");
+  if (!octx) {
+    return;
+  }
   const img = octx.createImageData(sampleW, sampleH);
 
   const cTL = parseHexColor(tl);

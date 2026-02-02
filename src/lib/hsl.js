@@ -1,8 +1,3 @@
-export function normalizeHexColorForPicker(hex) {
-  const normalized = normalizeHexColor(hex);
-  return normalized != null ? normalized : "#000000";
-}
-
 export function normalizeHexColor(hex) {
   const s = String(hex || "").trim();
   const m = /^#(?<r>[0-9a-fA-F]{2})(?<g>[0-9a-fA-F]{2})(?<b>[0-9a-fA-F]{2})$/.exec(s);
@@ -121,47 +116,8 @@ export function hslToRgb(h, s, l) {
 }
 
 export function hslToHex(h, s, l) {
-  const hh = ((h % 360) + 360) % 360;
-  const ss = Math.min(100, Math.max(0, s)) / 100;
-  const ll = Math.min(100, Math.max(0, l)) / 100;
-
-  const c = (1 - Math.abs(2 * ll - 1)) * ss;
-  const x = c * (1 - Math.abs(((hh / 60) % 2) - 1));
-  const m = ll - c / 2;
-
-  let rr = 0;
-  let gg = 0;
-  let bb = 0;
-  if (hh < 60) {
-    rr = c;
-    gg = x;
-    bb = 0;
-  } else if (hh < 120) {
-    rr = x;
-    gg = c;
-    bb = 0;
-  } else if (hh < 180) {
-    rr = 0;
-    gg = c;
-    bb = x;
-  } else if (hh < 240) {
-    rr = 0;
-    gg = x;
-    bb = c;
-  } else if (hh < 300) {
-    rr = x;
-    gg = 0;
-    bb = c;
-  } else {
-    rr = c;
-    gg = 0;
-    bb = x;
-  }
-
-  const r = Math.round((rr + m) * 255);
-  const g = Math.round((gg + m) * 255);
-  const b = Math.round((bb + m) * 255);
-  return rgbaToHex({ r, g, b, a: 255 });
+  const rgb = hslToRgb(h, s, l);
+  return rgbToHex(rgb.r, rgb.g, rgb.b);
 }
 
 export function adjustHexHsl(hex, dh, ds, dl) {

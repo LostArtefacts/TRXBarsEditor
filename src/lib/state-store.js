@@ -1,3 +1,6 @@
+import { safeGetLocalStorageItem, safeSetLocalStorageItem } from "./storage.js";
+import { createDefaultTheme, swapKeyOrderInObject } from "./workspace-ops.js";
+
 export class StateStore {
   constructor(storageKey) {
     this.storageKey = storageKey;
@@ -7,9 +10,9 @@ export class StateStore {
   createDefaultState() {
     return {
       percent: 1.0,
-      smooth: true,
-      selected: null, // { sectionKey: string, barName: string }
-      edits: {}, // v1 compat, migrated into workspaceThemes
+      smooth: false,
+      selected: null,
+      edits: {},
       workspaceThemes: {},
       deletedThemes: {},
       barAdjust: { h: 0, s: 0, l: 0 },
@@ -17,11 +20,11 @@ export class StateStore {
   }
 
   loadFromStorage() {
+    const raw = safeGetLocalStorageItem(this.storageKey);
+    if (raw == null) {
+      return;
+    }
     try {
-      const raw = localStorage.getItem(this.storageKey);
-      if (raw == null) {
-        return;
-      }
       const parsed = JSON.parse(raw);
       if (typeof parsed.percent === "number") {
         this.state.percent = parsed.percent;
@@ -68,11 +71,7 @@ export class StateStore {
       workspaceThemes: this.state.workspaceThemes,
       deletedThemes: this.state.deletedThemes,
     };
-    try {
-      localStorage.setItem(this.storageKey, JSON.stringify(snapshot));
-    } catch {
-      // ignore
-    }
+    safeSetLocalStorageItem(this.storageKey, JSON.stringify(snapshot));
   }
 
   hasAnyEdits() {
@@ -215,25 +214,7 @@ export class StateStore {
     if (this.state.deletedThemes && this.state.deletedThemes[themeKey]) {
       delete this.state.deletedThemes[themeKey];
     }
-    const base =
-      kind === "ps1"
-        ? {
-            scale: 1.0,
-            style: "ps1",
-            border_tl: "#000000",
-            border_tr: "#000000",
-            border_bl: "#000000",
-            border_br: "#000000",
-            colors: {},
-          }
-        : {
-            scale: 1.0,
-            style: "pc",
-            border_light: "#ffffff",
-            border_dark: "#404040",
-            colors: {},
-          };
-    this.state.workspaceThemes[themeKey] = base;
+    this.state.workspaceThemes[themeKey] = createDefaultTheme(kind);
     this.saveToStorage();
   }
 
@@ -294,26 +275,8 @@ export class StateStore {
     if (theme == null || theme.colors == null || theme.colors[barName] == null) {
       return;
     }
-    const names = Object.keys(theme.colors);
-    const idx = names.indexOf(barName);
-    if (idx < 0) {
-      return;
-    }
-    const nextIdx = idx + delta;
-    if (nextIdx < 0 || nextIdx >= names.length) {
-      return;
-    }
-    const reordered = [...names];
-    const tmp = reordered[idx];
-    reordered[idx] = reordered[nextIdx];
-    reordered[nextIdx] = tmp;
-
     const editable = this.ensureEditableTheme(themeKey, baseData);
-    const nextColors = {};
-    for (const name of reordered) {
-      nextColors[name] = structuredClone(theme.colors[name]);
-    }
-    editable.colors = nextColors;
+    editable.colors = swapKeyOrderInObject(theme.colors, barName, delta);
     this.saveToStorage();
   }
 
