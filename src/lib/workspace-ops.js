@@ -1,6 +1,15 @@
-export function createDefaultTheme(kind) {
+export function defaultNameGsForThemeKey(themeKey) {
+  const normalizedKey = String(themeKey || "")
+    .replace(/\s+/g, "_")
+    .toUpperCase();
+  return `BAR_LOOK_${normalizedKey}`;
+}
+
+export function createDefaultTheme(kind, themeKey = "") {
+  const nameGs = defaultNameGsForThemeKey(themeKey);
   if (String(kind).toLowerCase() === "ps1") {
     return {
+      name_gs: nameGs,
       scale: 1.0,
       style: "ps1",
       border_tl: "#000000",
@@ -11,6 +20,7 @@ export function createDefaultTheme(kind) {
     };
   }
   return {
+    name_gs: nameGs,
     scale: 1.0,
     style: "pc",
     border_light: "#ffffff",

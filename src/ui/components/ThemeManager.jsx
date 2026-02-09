@@ -1,4 +1,5 @@
 import React from "react";
+import { defaultNameGsForThemeKey } from "../../lib/workspace-ops.js";
 
 export function ThemeManager({
   workspace,
@@ -6,6 +7,7 @@ export function ThemeManager({
   onSelectThemeKey,
   onClearSelection,
   onAddTheme,
+  onSetThemeLabel,
   onCopyTheme,
   onRenameTheme,
   onDeleteTheme,
@@ -38,7 +40,7 @@ export function ThemeManager({
         </div>
       </div>
 
-      <div className="row" style={{ justifyContent: "flex-start", gap: 8 }}>
+      <div className="row" style={{ justifyContent: "flex-start", gap: 8, flexWrap: "wrap" }}>
         <button
           type="button"
           onClick={() => {
@@ -54,7 +56,12 @@ export function ThemeManager({
               window.alert("Theme key already exists.");
               return;
             }
-            onAddTheme(key, kind);
+            const labelInput = window.prompt("Theme label (name_gs)?", "");
+            if (labelInput == null) {
+              return;
+            }
+            const nameGs = String(labelInput || "").trim() || defaultNameGsForThemeKey(key);
+            onAddTheme(key, kind, nameGs);
           }}
         >
           Add
@@ -116,6 +123,25 @@ export function ThemeManager({
           }}
         >
           Delete
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            const key = selectedThemeKey || "";
+            if (key.length === 0) {
+              return;
+            }
+            const currentLabel = String(workspace[key]?.name_gs || "");
+            const labelInput = window.prompt("Set theme label (name_gs):", currentLabel);
+            if (labelInput == null) {
+              return;
+            }
+            const nameGs = String(labelInput || "").trim() || defaultNameGsForThemeKey(key);
+            onSetThemeLabel(key, nameGs);
+          }}
+        >
+          Set label
         </button>
       </div>
     </div>

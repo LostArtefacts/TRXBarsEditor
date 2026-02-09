@@ -214,7 +214,13 @@ export class StateStore {
     if (this.state.deletedThemes && this.state.deletedThemes[themeKey]) {
       delete this.state.deletedThemes[themeKey];
     }
-    this.state.workspaceThemes[themeKey] = createDefaultTheme(kind);
+    this.state.workspaceThemes[themeKey] = createDefaultTheme(kind, themeKey);
+    this.saveToStorage();
+  }
+
+  setThemeLabel(themeKey, nameGs, baseData) {
+    const editable = this.ensureEditableTheme(themeKey, baseData);
+    editable.name_gs = String(nameGs || "");
     this.saveToStorage();
   }
 

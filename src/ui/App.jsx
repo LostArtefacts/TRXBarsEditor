@@ -12,6 +12,7 @@ import { useDraft } from "./hooks/useDraft.js";
 import { useSavedIndicator } from "./hooks/useSavedIndicator.js";
 import { useStateStore } from "./hooks/useStateStore.js";
 import { useUiJson5File } from "./hooks/useUiJson5File.js";
+import { defaultNameGsForThemeKey } from "../lib/workspace-ops.js";
 
 const STORAGE_KEY = "trx.tools.uiBars.state.v2";
 const FILE_STORAGE_KEY = "trx.tools.uiBars.uiJson5.v1";
@@ -138,13 +139,20 @@ export function App() {
     persistStore();
   };
 
-  const addTheme = (themeKey, kind) => {
+  const addTheme = (themeKey, kind, nameGs) => {
     store.addTheme(themeKey, kind);
+    const nextNameGs = String(nameGs || "").trim() || defaultNameGsForThemeKey(themeKey);
+    store.setThemeLabel(themeKey, nextNameGs, baseData || {});
     store.selectTheme(themeKey, baseData || {});
     const next = store.state.selected;
     if (next?.sectionKey && next?.barName) {
       startDraft(next.sectionKey, next.barName);
     }
+    persistStore();
+  };
+
+  const setThemeLabel = (themeKey, nameGs) => {
+    store.setThemeLabel(themeKey, nameGs, baseData || {});
     persistStore();
   };
 
@@ -318,6 +326,7 @@ export function App() {
                     onSelectThemeKey={selectTheme}
                     onClearSelection={clearSelection}
                     onAddTheme={addTheme}
+                    onSetThemeLabel={setThemeLabel}
                     onCopyTheme={copyTheme}
                     onRenameTheme={renameTheme}
                     onDeleteTheme={deleteTheme}
