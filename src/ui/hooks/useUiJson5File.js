@@ -5,9 +5,11 @@ import {
   safeRemoveLocalStorageItem,
   safeSetLocalStorageItem,
 } from "../../lib/storage.js";
+import { parseUiJsonRoot } from "../../lib/ui-json.js";
 
 export function useUiJson5File({ fileStorageKey, store, onParsed }) {
   const [baseData, setBaseData] = useState(null);
+  const [rootData, setRootData] = useState(null);
   const [fileName, setFileName] = useState("");
   const [uploadOpen, setUploadOpen] = useState(false);
   const [uploadError, setUploadError] = useState(null);
@@ -21,12 +23,15 @@ export function useUiJson5File({ fileStorageKey, store, onParsed }) {
     }
     try {
       const parsed = JSON5.parse(raw);
-      setBaseData(parsed);
+      const normalized = parseUiJsonRoot(parsed);
+      setBaseData(normalized.bars);
+      setRootData(normalized.root);
       setFileName("saved file");
       setUploadError(null);
-      onParsed(parsed);
+      onParsed(normalized.bars);
     } catch (err) {
       setBaseData(null);
+      setRootData(null);
       setFileName("saved file");
       setUploadError(err);
       setUploadOpen(true);
@@ -43,14 +48,17 @@ export function useUiJson5File({ fileStorageKey, store, onParsed }) {
   const onUploadText = (text, name) => {
     try {
       const parsed = JSON5.parse(text);
-      setBaseData(parsed);
+      const normalized = parseUiJsonRoot(parsed);
+      setBaseData(normalized.bars);
+      setRootData(normalized.root);
       setFileName(name || "ui.json5");
       safeSetLocalStorageItem(fileStorageKey, text);
       setUploadError(null);
       setUploadOpen(false);
-      onParsed(parsed);
+      onParsed(normalized.bars);
     } catch (err) {
       setBaseData(null);
+      setRootData(null);
       setFileName(name || "ui.json5");
       setUploadError(err);
       window.alert(
@@ -69,6 +77,7 @@ export function useUiJson5File({ fileStorageKey, store, onParsed }) {
     }
     safeRemoveLocalStorageItem(fileStorageKey);
     setBaseData(null);
+    setRootData(null);
     setFileName("");
     setUploadError(null);
     setUploadOpen(false);
@@ -84,6 +93,7 @@ export function useUiJson5File({ fileStorageKey, store, onParsed }) {
 
   return {
     baseData,
+    rootData,
     fileName,
     uploadOpen,
     uploadError,

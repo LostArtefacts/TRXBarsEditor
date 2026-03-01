@@ -13,14 +13,16 @@ import { useSavedIndicator } from "./hooks/useSavedIndicator.js";
 import { useStateStore } from "./hooks/useStateStore.js";
 import { useUiJson5File } from "./hooks/useUiJson5File.js";
 import { defaultNameGsForThemeKey } from "../lib/workspace-ops.js";
+import { buildUiJsonExport } from "../lib/ui-json.js";
 
 const STORAGE_KEY = "trx.tools.uiBars.state.v2";
 const FILE_STORAGE_KEY = "trx.tools.uiBars.uiJson5.v1";
 
-function buildExportText({ baseData, stateStore }) {
-  const base = baseData || {};
-  const workspace = stateStore.buildWorkspaceData(base);
-  return JSON.stringify(workspace, null, 2);
+function buildExportText({ rootData, baseData, stateStore }) {
+  const baseBars = baseData || {};
+  const workspace = stateStore.buildWorkspaceData(baseBars);
+  const out = buildUiJsonExport(rootData, workspace);
+  return JSON.stringify(out, null, 2);
 }
 
 function openDownload(text) {
@@ -41,6 +43,7 @@ export function App() {
 
   const {
     baseData,
+    rootData,
     fileName,
     uploadOpen,
     uploadError,
@@ -241,7 +244,7 @@ export function App() {
   const hasSelectedBar = selected != null && selectedSection != null && selectedValue != null;
 
   const handleOpenUpload = () => setUploadOpen(true);
-  const handleDownload = () => openDownload(buildExportText({ baseData, stateStore: store }));
+  const handleDownload = () => openDownload(buildExportText({ rootData, baseData, stateStore: store }));
   const handlePercentChange = (e) => setPercent(Number(e.target.value));
   const handleSmoothChange = (e) => setSmooth(e.target.checked);
 
